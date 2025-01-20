@@ -1,8 +1,12 @@
 <?php
+$database_name = "";
+$host = "";
+$user = "";
+$passwd = "";
 $time_start = microtime(true);
-include_once(__DIR__.'/db.php');
-$pdo = new PDO('mysql:dbname='.$database_name.';host='.$host.';',$user,$passwd);
-$sql = "SELECT * FROM contents WHERE NOT(observatory = 'null' or earthquake_intensity = 'null' or earthquake_intensity = '震度情報なし') ORDER BY `contents`.`Occurrence_time` DESC";
+
+$pdo = new PDO('mysql:dbname='.$database_name.';host='.$host.';charset=utf8mb4',$user,$passwd);
+$sql = "SELECT * FROM earthquake ORDER BY `earthquake`.`time` DESC";
 $result = $pdo->query($sql);
 ?>
 <!DOCTYPE html>
@@ -20,47 +24,24 @@ $result = $pdo->query($sql);
     }
 </style>
 <body>
-<p>地震発生時間は表示できません。</p>
-<p>地震情報が複数表示があるかもしれません。</p>
 <p>地震の情報は<a href="https://www.p2pquake.net/json_api_v2/">ここから</a>取得しています。</p>
 <table border align="center">
 <tr>
-<th>発表時間</th>
+<th>発生時間</th>
 <th>震度</th>
-<th>都道府県</th>
-<th>観測都道府県</th>
+<th>発生場所</th>
 <th>マグニチュード</th>
 <th>震源の深さ</th>
 <th>津波</th>
 </tr>
 <?php
-while($row = $result->fetch()){
-    if($row['magnitude'] === null){
-        $row['magnitude'] = 'NULL';
-    }
-    if($row['depth'] === null){
-        $row['depth'] = 'NULL';
-    }
-    if($row['tsunami'] === null){
-        $row['tsunami'] = 'NULL';
-    }
-    if($row['prefectures'] === null){
-        $row['prefectures'] = 'NULL';
-    }
-    if($row['magnitude'] === '-1' or $row['depth'] === '-1Km' or $row['tsunami'] === '調査中'){
-        continue;
-    }
+while($row = $result->fetch()) {
     echo '<tr>';
-    echo '<th>'.$row['Occurrence_time'].'</th>';
-    echo '<th>'.$row['earthquake_intensity'].'</th>';
-    echo '<th>'.$row['prefectures'].'</th>';
-    echo '<th>'.$row['observatory'].'</th>';
+    echo '<th>'.$row['time'].'</th>';
+    echo '<th>'.$row['intensity'].'</th>';
+    echo '<th>'.$row['location'].'</th>';
     echo '<th>'.$row['magnitude'].'</th>';
-    if($row['depth'] === 'NULL'){
-        echo '<th>'.$row['depth'].'</th>';
-    }else{
-        echo '<th>'.$row['depth'].'Km'.'</th>';
-    }
+    echo '<th>'.$row['depth'].'</th>';
     echo '<th>'.$row['tsunami'].'</th>';
     echo '</tr>';
 }
